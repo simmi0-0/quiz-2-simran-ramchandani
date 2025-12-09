@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hom-O - Home Service Planner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        /* colors */
+        :root {
+            --color-primary-dark: #121c26;
+            --color-card-dark: #1a2f47;
+            --color-sidebar-light: #ffffff;
+            --color-form-light: #ffffff;
+            --color-text-dark: #e0e0e0;
+            --color-text-light: #333333;
+            --color-accent: #546e8f;
+            --color-home-bg: #f9f9f9;
+            --color-home-accent: #e5e7eb;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s;
+        }
+
+        /* themes */
+        .page-light {
+            background-color: var(--color-home-bg);
+            color: var(--color-text-light);
+        }
+
+        .page-dark {
+            background-color: var(--color-primary-dark);
+            color: var(--color-text-dark);
+        }
+
+        /* app card */
+        .app-container {
+            width: 100%;
+            height: 100vh;
+            max-width: 1400px;
+            max-height: 900px;
+        }
+        
+        .custom-toggle input:checked + .slider {
+            background-color: #3b82f6;
+        }
+
+        .custom-toggle input:checked + .slider::before {
+            transform: translateX(1.5rem);
+            background-color: white;
+        }
+        
+        .slider {
+            background-color: #ccc;
+            transition: .4s;
+            position: relative;
+            cursor: pointer;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+            border-radius: 9999px;
+        }
+
+        .slider::before {
+            content: "";
+            position: absolute;
+            height: 20px;
+            width: 20px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        /* mobile fix */
+        @media (max-width: 1023px) {
+            .app-container {
+                max-height: none;
+                height: 100vh;
+                border-radius: 0;
+            }
+        }
+        
+        /* buttons */
+        .action-button {
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+        }
+        .action-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+        }
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+    </style>
+</head>
+<body class="page-dark">
+
+    <div id="view-home" class="hidden w-full min-h-screen">
+        
+        <nav class="sticky top-0 z-10 bg-white/90 backdrop-blur-md shadow-sm dark:bg-[var(--color-primary-dark)] dark:text-[var(--color-text-dark)]">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center space-x-2 text-[var(--color-text-light)] dark:text-[var(--color-text-dark)]">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 fill-current" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                        <span class="text-xl font-bold">Hom-O</span>
+                    </div>
+
+                    <div class="flex items-center space-x-4">
+                        <button onclick="setView('login')"
+                                class="text-sm font-medium text-gray-600 hover:text-gray-900 transition dark:text-[var(--color-text-dark)] dark:hover:text-blue-400">
+                            sign in
+                        </button>
+                        <button onclick="setView('register')"
+                                class="bg-[var(--color-card-dark)] text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-blue-700 transition duration-200 shadow-lg">
+                            get started
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div class="text-center lg:text-left">
+                    <p class="text-sm font-semibold uppercase tracking-wider text-blue-600 mb-2">
+                        hom-o organization
+                    </p>
+                    <h1 class="text-5xl md:text-6xl font-extrabold leading-tight mb-4 text-[var(--color-text-light)] dark:text-[var(--color-text-dark)]">
+                        do you have a home? do you have money? do you need something done in your home? cool, cuz we need your money and you need our services
+                    </h1>
+                    <p class="text-lg text-gray-600 dark:text-gray-400 mb-8">
+                        plan, pay, get out of here
+                    </p>
+                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 justify-center lg:justify-start">
+                        <button onclick="setView('register')"
+                                class="bg-blue-600 text-white px-8 py-3 rounded-xl text-lg font-semibold shadow-xl hover:bg-blue-700 transition transform hover:scale-105">
+                            start free trial
+                        </button>
+                        <button onclick="alertMessage('this would link to documentation or a tour.', 'information unavailable')"
+                                class="bg-white text-gray-700 border border-gray-300 px-8 py-3 rounded-xl text-lg font-semibold hover:bg-gray-50 transition transform hover:scale-105 dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600">
+                            learn more
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-gray-200 p-8 rounded-3xl h-96 flex items-center justify-center shadow-2xl relative overflow-hidden dark:bg-[#1a2f47]">
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent"></div>
+                    <img src="https://placehold.co/500x300/e0e7ff/3b82f6?text=Modern+App+Interface+Preview" 
+                         alt="App Interface Preview" 
+                         class="w-full h-full object-cover rounded-2xl shadow-xl transform scale-105 transition duration-500" 
+                         onerror="this.onerror=null; this.src='https://placehold.co/500x300/e0e7ff/3b82f6?text=App+Preview';"
+                    >
+                    <div class="absolute bottom-4 right-4 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-lg text-sm font-medium text-gray-800 shadow-md">
+                        intuitive dashboard design
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="bg-white border-t border-gray-200 py-10 dark:bg-[#1a2f47] dark:border-gray-700">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-xl font-bold text-[var(--color-text-light)] dark:text-[var(--color-text-dark)] mb-6 text-center">contact & attribution</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                    <div>
+                        <p class="font-semibold text-blue-600 dark:text-blue-400">Ryan Richard Kalona</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">student no: 2902710973</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">email: ryan.kalona@binus.ac.id</p>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-blue-600 dark:text-blue-400">Dyka Adlero Clifzier Holy Covenant</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">student no: 2902719013</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">email: dyka.covenant@binus.ac.id</p>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-blue-600 dark:text-blue-400">Simran Ramchandani</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">student no: 2902710973</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">email: simran.ramchandani@binus.ac.id</p>
+                    </div>
+                </div>
+                <p class="mt-10 text-center text-xs text-gray-500 dark:text-gray-500">&copy; 2025 hom-o. all rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+    
+    <div id="auth-app-wrapper" class="hidden flex items-center justify-center min-h-screen p-4">
+
+        <div id="app-content" class="app-container flex shadow-2xl rounded-3xl overflow-hidden transition-all duration-300">
+            
+            <div id="view-login" class="hidden flex w-full">
+                <div class="w-full lg:w-1/2 p-8 sm:p-16 bg-white dark:bg-[#1a2f47] flex flex-col justify-center">
+                    
+                    <div class="flex items-center space-x-2 mb-8 text-[var(--color-text-light)] dark:text-[var(--color-text-dark)]">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 fill-current" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                        <span class="text-3xl font-bold">Hom-O</span>
+                    </div>
+                    
+                    <h1 class="text-4xl font-extrabold text-[var(--color-text-light)] dark:text-[var(--color-text-dark)] mb-2">welcome back</h1>
+                    <p class="text-gray-500 dark:text-gray-400 mb-8">please enter your details or <a href="#" onclick="setView('register')" class="text-blue-600 hover:text-blue-800 font-medium dark:text-blue-400 dark:hover:text-blue-500">register here</a>.</p>
+                    
+                    <form onsubmit="handleAuthSuccess(event, document.getElementById('login-email').value)" class="space-y-6">
+                        <div>
+                            <label for="login-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">email address</label>
+                            <input type="email" id="login-email" required placeholder="enter your email"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 transition duration-150 dark:bg-[#121c26] dark:border-[#324d6d] dark:text-[var(--color-text-dark)]">
+                        </div>
+                        
+                        <div>
+                            <label for="login-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">password</label>
+                            <input type="password" id="login-password" required placeholder="enter your password"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 transition duration-150 dark:bg-[#121c26] dark:border-[#324d6d] dark:text-[var(--color-text-dark)]">
+                        </div>
+
+                        <div class="flex items-center justify-between text-sm">
+                            <div class="flex items-center">
+                                <input id="remember" type="checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded dark:bg-[#121c26] dark:border-[#324d6d]">
+                                <label for="remember" class="ml-2 text-gray-600 dark:text-gray-400">remember me</label>
+                            </div>
+                            <a href="#" class="font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-500">forgot password?</a>
+                        </div>
+
+                        <button type="submit"
+                            class="w-full bg-blue-600 text-white py-3 rounded-xl text-lg font-semibold hover:bg-opacity-90 transition duration-200 shadow-md">
+                            sign in
+                        </button>
+                    </form>
+                </div>
+
+                <div class="hidden lg:flex w-1/2 bg-[var(--color-home-accent)] dark:bg-[#0c131b] justify-center items-center p-12 relative">
+                    <img src="https://placehold.co/400x400/1a2f47/ffffff?text=Professional+Service+Worker+Illustration" onerror="this.onerror=null; this.src='https://placehold.co/400x400/1a2f47/ffffff?text=Service+Illustration';" alt="Illustration" class="rounded-xl object-cover shadow-2xl">
+                </div>
+            </div>
+
+            <div id="view-register" class="hidden flex w-full">
+                <div class="w-full lg:w-1/2 p-8 sm:p-16 bg-white dark:bg-[#1a2f47] flex flex-col justify-center">
+                    
+                    <div class="flex items-center space-x-2 mb-8 text-[var(--color-text-light)] dark:text-[var(--color-text-dark)]">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 fill-current" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                        <span class="text-3xl font-bold">Hom-O</span>
+                    </div>
+                    
+                    <h1 class="text-4xl font-extrabold text-[var(--color-text-light)] dark:text-[var(--color-text-dark)] mb-2">create account</h1>
+                    <p class="text-gray-500 dark:text-gray-400 mb-8">join hom-o and start managing your home services today.</p>
+                    
+                    <form onsubmit="handleAuthSuccess(event, document.getElementById('reg-email').value)" class="space-y-6">
+                        <div>
+                            <label for="reg-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">full name</label>
+                            <input type="text" id="reg-name" required placeholder="john doe"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 transition duration-150 dark:bg-[#121c26] dark:border-[#324d6d] dark:text-[var(--color-text-dark)]">
+                        </div>
+                        <div>
+                            <label for="reg-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">email address</label>
+                            <input type="email" id="reg-email" required placeholder="enter your email"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 transition duration-150 dark:bg-[#121c26] dark:border-[#324d6d] dark:text-[var(--color-text-dark)]">
+                        </div>
+                        
+                        <div>
+                            <label for="reg-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">password</label>
+                            <input type="password" id="reg-password" required placeholder="create a password"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 transition duration-150 dark:bg-[#121c26] dark:border-[#324d6d] dark:text-[var(--color-text-dark)]">
+                        </div>
+
+                        <button type="submit"
+                            class="w-full bg-blue-600 text-white py-3 rounded-xl text-lg font-semibold hover:bg-blue-700 transition duration-200 shadow-md">
+                            register & start planning
+                        </button>
+                    </form>
+
+                    <p class="text-center text-sm text-gray-500 mt-6 dark:text-gray-400">
+                        already have an account? 
+                        <a href="#" onclick="setView('login')" class="font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-500">sign in here</a>
+                    </p>
+                </div>
+
+                <div class="hidden lg:flex w-1/2 bg-[var(--color-home-accent)] dark:bg-[#0c131b] justify-center items-center p-12 relative">
+                    <img src="https://placehold.co/400x400/1a2f47/ffffff?text=Happy+Home+Illustration" onerror="this.onerror=null; this.src='https://placehold.co/400x400/1a2f47/ffffff?text=Service+Illustration';" alt="Illustration" class="rounded-xl object-cover shadow-2xl">
+                </div>
+            </div>
+
+            <div id="view-app" class="hidden flex w-full h-full bg-white transition-colors duration-300">
+                
+                <div id="sidebar" class="w-20 sm:w-64 flex-shrink-0 p-4 transition-all duration-300 flex flex-col justify-between rounded-l-3xl shadow-lg border-r border-gray-200">
+                    
+                    <div>
+                        <div class="flex items-center space-x-2 p-2 mb-8 text-[var(--color-text-light)] dark:text-[var(--color-text-dark)]">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 fill-current" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                            <span class="text-2xl font-bold hidden sm:block">Hom-O</span>
+                        </div>
+                        
+                        <p class="text-xs font-semibold uppercase opacity-50 mb-4 hidden sm:block" id="nav-header-general">general</p>
+
+                        <nav id="nav-links" class="space-y-2">
+                            <a onclick="setAppView('dashboard')" id="nav-dashboard"
+                                class="flex items-center p-3 rounded-xl cursor-pointer transition-colors duration-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+                                <span class="ml-4 font-medium hidden sm:block">dashboard</span>
+                            </a>
+                            
+                            <a onclick="setAppView('schedule')" id="nav-schedule"
+                                class="flex items-center p-3 rounded-xl cursor-pointer transition-colors duration-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M19 4h-3V2h-2v2h-4V2H8v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg>
+                                <span class="ml-4 font-medium hidden sm:block">schedule</span>
+                            </a>
+
+                            <a onclick="setAppView('settings')" id="nav-settings"
+                                class="flex items-center p-3 rounded-xl cursor-pointer transition-colors duration-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M19.43 12.98c.04-.32.07-.64.07-.98 0-.34-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.07-.75-1.65-.98l-.35-2.61C14.15 2.18 13.88 2 13.5 2h-3c-.38 0-.65.18-.74.46l-.35 2.61c-.58.23-1.13.58-1.65.98l-2.49-1c-.23-.09-.49-.01-.61.22l-2 3.46c-.12.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98 0 .33.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.07.75 1.65.98l.35 2.61c.09.28.36.46.74.46h3c.38 0 .65-.18.74-.46l.35-2.61c.58-.23 1.13-.58 1.65-.98l2.49 1c.23.09.49.01.61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1-65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
+                                <span class="ml-4 font-medium hidden sm:block">settings</span>
+                            </a>
+                        </nav>
+                    </div>
+
+                    <div class="mt-8 pt-4 border-t border-gray-300 dark:border-white/10">
+                        <button onclick="setView('home')"
+                                class="w-full flex items-center p-3 rounded-xl cursor-pointer transition-colors duration-200 opacity-70 hover:opacity-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.59L17 17l5-5zM4 5h9V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h9v-2H4V5z"/></svg>
+                            <span class="ml-4 font-medium hidden sm:block">logout</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="content-panel" class="flex-grow p-6 sm:p-10 overflow-auto">
+                    
+                    <header class="flex justify-between items-center mb-8">
+                        <div class="text-3xl font-extrabold hidden lg:block" id="content-header-title">dashboard</div>
+                        
+                        <div class="flex items-center space-x-4 ml-auto">
+                            <div class="relative hidden sm:block">
+                            </div>
+
+                            <div class="flex items-center space-x-3">
+                                <div class="text-sm hidden sm:block text-right">
+                                    <p class="font-semibold" id="user-display-name">user name</p>
+                                    <p class="opacity-70 text-xs" id="user-display-email">email@example.com</p>
+                                </div>
+                                <img src="https://placehold.co/40x40/546e8f/ffffff?text=U" alt="user profile" class="w-10 h-10 rounded-full object-cover shadow-md">
+                            </div>
+                        </div>
+                    </header>
+
+                    <div id="dynamic-content">
+                        </div>
+
+                </div>
+            </div>
+            <div id="message-box" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+                <div class="bg-white dark:bg-[#1a2f47] p-6 rounded-xl shadow-2xl max-w-sm w-full text-[var(--color-text-light)] dark:text-[var(--color-text-dark)]">
+                    <h3 class="text-xl font-bold mb-3" id="msg-title">notification</h3>
+                    <p id="msg-body" class="mb-4">message content.</p>
+                    <button onclick="hideMessage()" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">close</button>
+                </div>
+            </div>
+
+            <div id="cancel-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay transition-opacity duration-300">
+                <div class="bg-white dark:bg-[#1a2f47] rounded-xl shadow-2xl p-6 md:p-8 max-w-sm w-full transform transition-all duration-300 scale-100">
+                    <h3 class="text-2xl font-bold text-gray-800 dark:text-white text-center mb-4">are you sure?</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-center mb-6">cancelling this service means the puppy will be sad.</p>
+                    
+                    <img src="sad_puppy.jpg" 
+                         alt="a sad puppy who is disappointed the service was cancelled." 
+                         class="w-full h-36 object-cover rounded-lg mb-6 shadow-md"
+                         onerror="this.onerror=null; this.src='https://placehold.co/400x300/d7eaf1/333333?text=Sad+Puppy'"
+                    >
+
+                    <div class="flex flex-col space-y-3">
+                        <button onclick="confirmCancellation(true)" class="action-button w-full bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700">
+                            yes, cancel service
+                        </button>
+                        <button onclick="confirmCancellation(false)" class="action-button w-full bg-gray-200 text-gray-800 py-3 rounded-lg font-semibold hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
+                            no, keep appointment
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <template id="dashboard-template">
+        <h1 class="text-4xl font-extrabold mb-8">service planner dashboard</h1>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="p-6 rounded-xl shadow-lg bg-blue-50/70 border-l-4 border-blue-500 dark:bg-[#2b4c6e] dark:border-blue-400">
+                <h2 class="text-xl font-bold mb-2 flex items-center text-blue-800 dark:text-blue-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M19 4h-3V2h-2v2h-4V2H8v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg>
+                    next appointment
+                </h2>
+                <p class="text-3xl font-extrabold mt-4">plumbing repair</p>
+                <p class="opacity-80">friday, oct 25th at 10:00 am</p>
+                <button onclick="setAppView('service-detail', 'Plumbing Repair')" class="mt-4 bg-blue-500 text-white py-2 px-4 rounded-lg text-sm hover:bg-blue-600 transition">manage</button>
+            </div>
+            
+            <div class="p-6 rounded-xl shadow-lg bg-green-50/70 border-l-4 border-green-500 dark:bg-[#2b4c6e] dark:border-green-400">
+                <h2 class="text-xl font-bold mb-2 flex items-center text-green-800 dark:text-green-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7zm.5-8.5c0 .28-.22.5-.5.5s-.5-.22-.5-.5V7c0-.28.22-.5.5-.5s.5.22.5.5v4.5zM13 14h-2v2h2v-2z"/></svg>
+                    recent history
+                </h2>
+                <p class="text-3xl font-extrabold mt-4">ac maintenance</p>
+                <p class="opacity-80">completed on sept 12th, 2025</p>
+                <button onclick="setAppView('service-detail', 'AC Maintenance')" class="mt-4 bg-green-500 text-white py-2 px-4 rounded-lg text-sm hover:bg-green-600 transition">details</button>
+            </div>
+
+            <div class="p-6 rounded-xl shadow-lg bg-red-50/70 border-l-4 border-red-500 dark:bg-[#2b4c6e] dark:border-red-400">
+                <h2 class="text-xl font-bold mb-2 flex items-center text-red-800 dark:text-red-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                    book a new service
+                </h2>
+                <p class="opacity-80 mt-4">quickly schedule your next home service.</p>
+                <button onclick="alertMessage('this would lead to a dedicated booking flow.', 'new booking')"
+                        class="mt-4 w-full bg-red-600 text-white py-3 rounded-xl font-semibold hover:bg-red-700 transition duration-200 shadow-md">
+                    start booking
+                </button>
+            </div>
+        </div>
+    </template>
+
+    <template id="schedule-template">
+        <h1 class="text-4xl font-extrabold mb-8">service schedule</h1>
+        
+        <div class="p-6 rounded-xl shadow-lg bg-white dark:bg-[#2b4c6e]">
+            <p class="text-2xl font-semibold opacity-70">calendar view placeholder</p>
+            <div class="h-96 flex items-center justify-center border border-dashed rounded-lg mt-4 bg-gray-50 dark:bg-black/20">
+                <p class="opacity-50">monthly calendar visualization would be displayed here.</p>
+            </div>
+            <button onclick="setAppView('reschedule')" class="mt-4 bg-blue-500 text-white py-2 px-4 rounded-lg text-sm hover:bg-blue-600 transition">
+                view calendar
+            </button>
+        </div>
+    </template>
+
+    <template id="service-detail-template">
+        <h1 class="text-4xl font-extrabold mb-8" id="detail-service-title">plumbing repair details</h1>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 space-y-6">
+                <div class="p-6 rounded-xl shadow-md bg-white border-t-4 border-blue-500 dark:bg-[#2b4c6e] dark:border-blue-300">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100">
+                            scheduled
+                        </span>
+                        <span class="text-sm opacity-70">booking id: homo-2025-1025</span>
+                    </div>
+                    <p class="text-3xl font-extrabold text-[var(--color-text-light)] dark:text-[var(--color-text-dark)]">
+                        friday, october 25th, 2025
+                    </p>
+                    <p class="text-xl font-semibold text-blue-600 dark:text-blue-300">
+                        10:00 am - 12:00 pm (2-hour window)
+                    </p>
+                </div>
+
+                <div class="p-6 rounded-xl shadow-md bg-white dark:bg-[#2b4c6e]">
+                    <h2 class="text-2xl font-bold mb-4 border-b pb-2 dark:border-white/10">service provider</h2>
+                    <div class="flex items-center space-x-4">
+                        <img src="https://placehold.co/60x60/3b82f6/ffffff?text=P" alt="provider photo" class="rounded-full">
+                        <div>
+                            <p class="text-xl font-semibold">prabowo plumbers pioners</p>
+                            <p class="opacity-70">contact: 1800 - prabowo can plumb</p>
+                            <p class="text-sm text-green-600 dark:text-green-300">4.8/5.0 rating</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-6 rounded-xl shadow-md bg-white dark:bg-[#2b4c6e]">
+                    <h2 class="text-2xl font-bold mb-4 border-b pb-2 dark:border-white/10">service details & notes</h2>
+                    <p class="opacity-90">
+                        diagnose and repair leaking pipe in the basement utility room. please bring necessary replacement fittings for common pvc sizes. access code is 4321, please ring the back doorbell.
+                    </p>
+                    <p class="mt-4 text-sm opacity-60">
+                        last updated: oct 20th, 2025
+                    </p>
+                </div>
+            </div>
+
+            <div class="lg:col-span-1 space-y-4">
+                <h2 class="text-2xl font-bold mb-2">actions</h2>
+                <button onclick="handleReschedule()"
+                        class="action-button w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition duration-200 shadow-md">
+                    📅 reschedule
+                </button>
+                <button onclick="handleConfirmArrival()"
+                        class="action-button w-full bg-green-500 text-white py-3 rounded-xl font-semibold hover:bg-green-600 transition duration-200 shadow-md">
+                    ✅ confirm arrival & pay
+                </button>
+                <button onclick="handleCancelService()"
+                        class="action-button w-full bg-red-600 text-white py-3 rounded-xl font-semibold hover:bg-red-700 transition duration-200 shadow-md">
+                    ❌ cancel service
+                </button>
+                <hr class="border-gray-300 dark:border-white/10 my-2">
+                <button onclick="setAppView('dashboard')"
+                        class="w-full bg-gray-200 text-[var(--color-text-light)] py-3 rounded-xl font-semibold hover:bg-gray-300 transition duration-200 dark:bg-[#1a2f47] dark:text-[var(--color-text-dark)]">
+                    ← back to dashboard
+                </button>
+            </div>
+        </div>
+    </template>
+
+    <template id="reschedule-template">
+        <div class="bg-white p-6 md:p-10 rounded-xl shadow-xl w-full text-center dark:bg-[#2b4c6e]">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-blue-600">reschedule service</h1>
+                <button onclick="setAppView('service-detail', lastDetailItem)" class="text-gray-500 hover:text-gray-800 font-semibold transition dark:text-gray-300">← back to details</button>
+            </div>
+            
+            <div class="bg-blue-50 p-6 rounded-lg shadow-inner dark:bg-black/20">
+                <div class="flex justify-between items-center mb-4">
+                    <button class="text-blue-600 font-bold p-2 rounded-full hover:bg-blue-100 dark:text-blue-300">&lt;</button>
+                    <h2 class="text-xl font-semibold text-blue-800 dark:text-blue-300">december 2025</h2>
+                    <button class="text-blue-600 font-bold p-2 rounded-full hover:bg-blue-100 dark:text-blue-300">&gt;</button>
+                </div>
+                <div class="grid grid-cols-7 gap-1 text-sm font-medium text-gray-500 mb-2">
+                    <span>sun</span><span>mon</span><span>tue</span><span>wed</span><span>thu</span><span>fri</span><span>sat</span>
+                </div>
+                <div class="grid grid-cols-7 gap-1 text-center text-gray-800 dark:text-white">
+                    <div class="p-2 rounded-lg text-gray-400 dark:text-gray-600"></div>
+                    <div class="p-2 rounded-lg cursor-pointer transition hover:bg-blue-200 dark:hover:bg-[#1a2f47]">1</div>
+                    <div class="p-2 rounded-lg cursor-pointer transition hover:bg-blue-200 dark:hover:bg-[#1a2f47]">2</div>
+                    <div class="p-2 rounded-lg cursor-pointer transition hover:bg-blue-200 dark:hover:bg-[#1a2f47]">3</div>
+                    <div class="p-2 rounded-lg cursor-pointer transition hover:bg-blue-200 dark:hover:bg-[#1a2f47]">4</div>
+                    <div class="p-2 rounded-lg cursor-pointer transition hover:bg-blue-200 dark:hover:bg-[#1a2f47]">5</div>
+                    <div class="p-2 rounded-lg cursor-pointer transition hover:bg-blue-200 dark:hover:bg-[#1a2f47]">6</div>
+                    <div class="p-2 rounded-lg cursor-pointer transition hover:bg-blue-200 dark:hover:bg-[#1a2f47]">7</div>
+                    <div class="p-2 rounded-lg cursor-pointer transition hover:bg-blue-200 dark:hover:bg-[#1a2f47]">8</div>
+                    <div class="p-2 rounded-lg cursor-pointer transition hover:bg-blue-200 dark:hover:bg-[#1a2f47]">9</div>
+                    <div class="p-2 rounded-lg cursor-pointer transition hover:bg-blue-200 dark:hover:bg-[#1a2f47]">10</div>
+                    <div class="p-2 rounded-lg cursor-pointer transition hover:bg-blue-200 dark:hover:bg-[#1a2f47]">11</div>
+                    <div class="p-2 rounded-lg cursor-pointer transition hover:bg-blue-200 dark:hover:bg-[#1a2f47]">12</div>
+                    <div class="p-2 rounded-lg cursor-pointer transition hover:bg-blue-200 dark:hover:bg-[#1a2f47]">13</div>
+                    <div class="p-2 rounded-lg cursor-pointer transition hover:bg-blue-200 dark:hover:bg-[#1a2f47]">14</div>
+                    <div class="p-2 rounded-lg bg-red-100 font-bold text-red-800 dark:bg-red-900 dark:text-white">15</div> <div class="p-2 rounded-lg cursor-pointer transition hover:bg-blue-200 dark:hover:bg-[#1a2f47]">16</div>
+                    <div class="p-2 rounded-lg cursor-pointer transition hover:bg-blue-200 dark:hover:bg-[#1a2f47]">17</div>
+                    <div class="p-2 rounded-lg cursor-pointer transition hover:bg-blue-200 dark:hover:bg-[#1a2f47]">18</div>
+                    <div class="p-2 rounded-lg cursor-pointer transition hover:bg-blue-200 dark:hover:bg-[#1a2f47]">19</div>
+                    <div class="p-2 rounded-lg cursor-pointer transition hover:bg-blue-200 dark:hover:bg-[#1a2f47]">20</div>
+                    <div class="p-2 rounded-lg cursor-pointer transition hover:bg-blue-200 dark:hover:bg-[#1a2f47]">21</div>
+                    <div class="bg-blue-600 text-white font-bold shadow-lg p-2 rounded-lg">22</div> <div class="p-2 rounded-lg cursor-pointer transition hover:bg-blue-200 dark:hover:bg-[#1a2f47]">23</div>
+                    <div class="p-2 rounded-lg cursor-pointer transition hover:bg-blue-200 dark:hover:bg-[#1a2f47]">24</div>
+                    <div class="p-2 rounded-lg cursor-pointer transition hover:bg-blue-200 dark:hover:bg-[#1a2f47]">25</div>
+                    <div class="p-2 rounded-lg cursor-pointer transition hover:bg-blue-200 dark:hover:bg-[#1a2f47]">26</div>
+                    <div class="p-2 rounded-lg cursor-pointer transition hover:bg-blue-200 dark:hover:bg-[#1a2f47]">27</div>
+                    <div class="p-2 rounded-lg cursor-pointer transition hover:bg-blue-200 dark:hover:bg-[#1a2f47]">28</div>
+                    <div class="p-2 rounded-lg cursor-pointer transition hover:bg-blue-200 dark:hover:bg-[#1a2f47]">29</div>
+                    <div class="p-2 rounded-lg cursor-pointer transition hover:bg-blue-200 dark:hover:bg-[#1a2f47]">30</div>
+                    <div class="p-2 rounded-lg cursor-pointer transition hover:bg-blue-200 dark:hover:bg-[#1a2f47]">31</div>
+                    <div class="p-2 rounded-lg text-gray-400 dark:text-gray-600"></div>
+                    <div class="p-2 rounded-lg text-gray-400 dark:text-gray-600"></div>
+                    <div class="p-2 rounded-lg text-gray-400 dark:text-gray-600"></div>
+                </div>
+                <p class="mt-4 text-sm text-blue-600 font-medium dark:text-blue-300">
+                    original date (Oct 25th) is shown in <span class="text-red-600 dark:text-red-400 font-bold">red</span> (placeholder for Dec 15th), new date (Dec 22nd) is selected.
+                </p>
+            </div>
+
+            <button onclick="setAppView('service-detail', lastDetailItem)" class="action-button mt-8 w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700">
+                confirm new date
+            </button>
+        </div>
+    </template>
+
+    <template id="payment-template">
+        <div class="bg-white p-6 md:p-10 rounded-xl shadow-xl max-w-lg w-full text-center dark:bg-[#2b4c6e]">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-green-600">proceed to payment</h1>
+                <button onclick="setAppView('service-detail', lastDetailItem)" class="text-gray-500 hover:text-gray-800 font-semibold transition dark:text-gray-300">← back to details</button>
+            </div>
+
+            <div class="bg-green-50 p-6 rounded-lg mb-6 shadow-inner dark:bg-black/20">
+                <p class="text-4xl font-extrabold text-green-800 dark:text-green-300 mb-2">$149.99</p>
+                <p class="text-lg text-green-700 dark:text-green-400">service fee due upon arrival confirmation.</p>
+            </div>
+
+            <div class="space-y-4 text-left">
+                <input type="text" placeholder="card number" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-green-500 focus:border-green-500 dark:bg-[#1a2f47] dark:border-[#324d6d] dark:text-[var(--color-text-dark)]">
+                <div class="flex space-x-4">
+                    <input type="text" placeholder="mm/yy" class="w-1/2 p-3 border border-gray-300 rounded-xl focus:ring-green-500 focus:border-green-500 dark:bg-[#1a2f47] dark:border-[#324d6d] dark:text-[var(--color-text-dark)]">
+                    <input type="text" placeholder="cvc" class="w-1/2 p-3 border border-gray-300 rounded-xl focus:ring-green-500 focus:border-green-500 dark:bg-[#1a2f47] dark:border-[#324d6d] dark:text-[var(--color-text-dark)]">
+                </div>
+            </div>
+
+            <button onclick="alertMessage('payment simulation complete. service confirmed.', 'payment complete')" class="action-button mt-6 w-full bg-green-600 text-white py-3 rounded-xl font-semibold text-lg hover:bg-green-700">
+                complete payment
+            </button>
+        </div>
+    </template>
+
+    <template id="cancel-confirmed-template">
+        <div class="bg-white p-6 md:p-10 rounded-xl shadow-xl max-w-sm w-full text-center border-t-8 border-red-500 dark:bg-[#2b4c6e]">
+            <svg class="mx-auto h-16 w-16 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h1 class="text-3xl font-bold text-red-600 mt-4 mb-2">service cancelled!</h1>
+            <p class="text-gray-600 mb-8 dark:text-gray-300">we are sorry to see you go. your appointment has been successfully cancelled.</p>
+            
+            <button onclick="setAppView('dashboard')" class="action-button w-full bg-gray-600 text-white py-3 rounded-lg font-semibold hover:bg-gray-700">
+                back to dashboard
+            </button>
+        </div>
+    </template>
+    
+    <template id="settings-template">
+        <h1 class="text-4xl font-extrabold mb-10">settings</h1>
+        
+        <div class="space-y-8">
+            <div class="settings-card p-6 rounded-xl shadow-md bg-gray-50 dark:bg-[#2b4c6e]">
+                <h2 class="text-2xl font-bold mb-6">appearance</h2>
+                
+                <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-white/10">
+                    <p class="font-medium">dark mode</p>
+                    <label class="custom-toggle">
+                        <input type="checkbox" id="dark-mode-toggle" onchange="toggleTheme(this.checked)" class="sr-only">
+                        <span class="slider bg-gray-300 dark:bg-gray-600"></span>
+                    </label>
+                </div>
+
+                <div class="flex justify-between items-center py-3">
+                    <p class="font-medium">current theme</p>
+                    <span class="text-sm opacity-50" id="current-theme-status">dark</span>
+                </div>
+            </div>
+
+            <div class="settings-card p-6 rounded-xl shadow-md bg-gray-50 dark:bg-[#2b4c6e]">
+                <h2 class="text-2xl font-bold mb-6">profile information</h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label for="settings-email" class="block text-sm font-medium opacity-70 mb-1">email</label>
+                        <input id="settings-email" type="email"
+                              class="w-full px-4 py-3 border rounded-xl transition duration-150 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-[#1a2f47] dark:border-[#324d6d] dark:text-[var(--color-text-dark)]" readonly>
+                    </div>
+                    
+                    <div>
+                        <label for="settings-address" class="block text-sm font-medium opacity-70 mb-1">home address</label>
+                        <input id="settings-address" type="text" value="jl panjang"
+                              class="w-full px-4 py-3 border rounded-xl transition duration-150 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-[#1a2f47] dark:border-[#324d6d] dark:text-[var(--color-text-dark)]">
+                    </div>
+                    
+                    <button onclick="alertMessage('address and profile details saved successfully.', 'profile updated')"
+                            class="bg-blue-600 text-white py-2 px-4 rounded-xl text-sm font-semibold hover:bg-blue-700 transition">
+                        save changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        /* keys */
+        const THEME_KEY = 'homo-theme';
+        const USER_EMAIL_KEY = 'homo-user-email';
+        
+        /* state */
+        let currentAppView = 'dashboard'; 
+        let lastDetailItem = 'plumbing repair'; /* service name */
+        let currentTheme = localStorage.getItem(THEME_KEY) || 'dark';
+        let userEmail = localStorage.getItem(USER_EMAIL_KEY) || 'guest@homo.com';
+
+        /* dom refs */
+        const views = {
+            home: document.getElementById('view-home'),
+            authAppWrapper: document.getElementById('auth-app-wrapper'),
+            login: document.getElementById('view-login'),
+            register: document.getElementById('view-register'),
+            app: document.getElementById('view-app')
+        };
+        
+        const dynamicContent = document.getElementById('dynamic-content');
+        const contentHeaderTitle = document.getElementById('content-header-title');
+        const userDisplayEmail = document.getElementById('user-display-email');
+        const userDisplayName = document.getElementById('user-display-name');
+        const cancelModal = document.getElementById('cancel-modal');
+
+
+        /* --- utilities --- */
+
+        function alertMessage(body, title = 'notification') {
+            document.getElementById('msg-title').textContent = title;
+            document.getElementById('msg-body').textContent = body;
+            document.getElementById('message-box').classList.remove('hidden');
+            document.getElementById('message-box').classList.add('flex');
+        }
+
+        function hideMessage() {
+            document.getElementById('message-box').classList.add('hidden');
+            document.getElementById('message-box').classList.remove('flex');
+        }
+        
+        function updateUserInfo(email) {
+            userEmail = email;
+            localStorage.setItem(USER_EMAIL_KEY, email);
+            
+            if (userDisplayEmail) {
+                userDisplayEmail.textContent = email;
+            }
+            if (userDisplayName) {
+                /* simple name */
+                userDisplayName.textContent = email.split('@')[0].toUpperCase();
+            }
+            
+            /* settings view */
+            const settingsEmailInput = document.getElementById('settings-email');
+            if (settingsEmailInput) {
+                settingsEmailInput.value = email;
+            }
+        }
+
+        /* --- theme --- */
+
+        function applyTheme(theme) {
+            currentTheme = theme;
+            localStorage.setItem(THEME_KEY, theme);
+            
+            const body = document.body;
+            body.classList.remove('page-light', 'page-dark');
+            
+            const sidebar = document.getElementById('sidebar');
+            const toggleCheckbox = document.getElementById('dark-mode-toggle');
+            const themeStatus = document.getElementById('current-theme-status');
+            
+            if (theme === 'dark') {
+                body.classList.add('page-dark');
+                views.app.classList.remove('bg-white');
+                views.app.classList.add('bg-[var(--color-primary-dark)]');
+                document.documentElement.classList.add('dark');
+
+                if (sidebar) {
+                    sidebar.classList.add('bg-[var(--color-card-dark)]', 'border-white/10');
+                    sidebar.classList.remove('bg-[var(--color-sidebar-light)]', 'border-gray-200');
+                }
+                if (themeStatus) themeStatus.textContent = 'dark';
+            } else {
+                body.classList.add('page-light');
+                views.app.classList.remove('bg-[var(--color-primary-dark)]');
+                views.app.classList.add('bg-white');
+                document.documentElement.classList.remove('dark');
+
+                if (sidebar) {
+                    sidebar.classList.remove('bg-[var(--color-card-dark)]', 'border-white/10');
+                    sidebar.classList.add('bg-[var(--color-sidebar-light)]', 'border-gray-200');
+                }
+                if (themeStatus) themeStatus.textContent = 'light';
+            }
+            
+            /* toggle state */
+            if (toggleCheckbox) {
+                toggleCheckbox.checked = (theme === 'dark');
+            }
+
+            updateNavActiveState(currentAppView);
+        }
+
+        function toggleTheme(isDark) {
+            applyTheme(isDark ? 'dark' : 'light');
+        }
+
+        /* --- actions --- */
+
+        function handleReschedule() {
+            /* uses lastDetailItem */
+            setAppView('reschedule');
+        }
+
+        function handleConfirmArrival() {
+            setAppView('payment');
+        }
+
+        function handleCancelService() {
+            /* show modal */
+            cancelModal.classList.remove('hidden');
+            cancelModal.classList.add('flex');
+        }
+
+        function confirmCancellation(isConfirmed) {
+            cancelModal.classList.add('hidden');
+            cancelModal.classList.remove('flex');
+            if (isConfirmed) {
+                setAppView('cancel-confirmed');
+                alertMessage('your service has been cancelled. we hope to see you soon!', 'cancellation confirmed');
+            } else {
+                /* stay */
+                alertMessage('cancellation aborted. your service is still scheduled.', 'appointment kept');
+            }
+        }
+
+        /* --- views --- */
+        
+        function setView(viewName) {
+            /* hide all */
+            Object.values(views).forEach(v => v.classList.add('hidden'));
+            
+            /* show requested */
+            if (viewName === 'home') {
+                views.home.classList.remove('hidden');
+                views.authAppWrapper.classList.add('hidden');
+            } else if (viewName === 'login') {
+                views.authAppWrapper.classList.remove('hidden');
+                views.login.classList.remove('hidden');
+            } else if (viewName === 'register') {
+                views.authAppWrapper.classList.remove('hidden');
+                views.register.classList.remove('hidden');
+            } else if (viewName === 'app') {
+                views.authAppWrapper.classList.remove('hidden');
+                views.app.classList.remove('hidden');
+                applyTheme(currentTheme);
+                setAppView(currentAppView);
+            }
+        }
+
+        function setAppView(viewName, detailItem = null) {
+            currentAppView = viewName;
+            dynamicContent.innerHTML = '';
+
+            let templateId;
+            let headerTitle;
+            let isSidebarActive = true;
+
+            /* store service name */
+            if (detailItem) {
+                lastDetailItem = detailItem;
+            }
+
+            switch(viewName) {
+                case 'settings':
+                    templateId = 'settings-template';
+                    headerTitle = 'settings';
+                    break;
+                case 'schedule':
+                    templateId = 'schedule-template';
+                    headerTitle = 'service schedule';
+                    break;
+                case 'service-detail':
+                    templateId = 'service-detail-template';
+                    headerTitle = 'service details';
+                    break;
+                case 'reschedule':
+                    templateId = 'reschedule-template';
+                    headerTitle = 'reschedule';
+                    isSidebarActive = false;
+                    break;
+                case 'payment':
+                    templateId = 'payment-template';
+                    headerTitle = 'payment';
+                    isSidebarActive = false;
+                    break;
+                case 'cancel-confirmed':
+                    templateId = 'cancel-confirmed-template';
+                    headerTitle = 'cancellation';
+                    isSidebarActive = false;
+                    break;
+                case 'dashboard':
+                default:
+                    templateId = 'dashboard-template';
+                    headerTitle = 'dashboard';
+                    break;
+            }
+
+            /* update title */
+            if(contentHeaderTitle) {
+                contentHeaderTitle.textContent = headerTitle;
+            }
+
+            /* load template */
+            const template = document.getElementById(templateId);
+            if (template) {
+                const clone = document.importNode(template.content, true);
+                dynamicContent.appendChild(clone);
+            }
+            
+            /* post-render updates */
+            if (viewName === 'settings') {
+                /* set values */
+                updateUserInfo(userEmail);
+            }
+            if (viewName === 'service-detail' && lastDetailItem) {
+                /* update detail title */
+                const detailTitle = document.getElementById('detail-service-title');
+                if (detailTitle) {
+                    detailTitle.textContent = lastDetailItem + ' details';
+                }
+            }
+
+            /* update nav */
+            updateNavActiveState(isSidebarActive ? viewName : null);
+        }
+
+        function updateNavActiveState(activeView) {
+            const links = document.querySelectorAll('#nav-links a');
+            links.forEach(link => {
+                
+                const linkView = link.id.replace('nav-', '');
+
+                /* reset */
+                link.classList.add('opacity-70', 'hover:opacity-100');
+                link.classList.remove('bg-blue-50', 'text-blue-800', 'bg-[var(--color-accent)]', 'text-white');
+                
+                if (linkView === activeView) {
+                    link.classList.remove('opacity-70', 'hover:opacity-100');
+                    if (currentTheme === 'dark') {
+                        link.classList.add('bg-[var(--color-accent)]', 'text-white');
+                    } else {
+                        link.classList.add('bg-blue-50', 'text-blue-800');
+                    }
+                }
+            });
+        }
+
+        /* --- auth simulation --- */
+
+        function handleAuthSuccess(event, email) {
+            event.preventDefault();
+            
+            /* set user */
+            updateUserInfo(email);
+            
+            /* check register */
+            const isRegister = event.target.closest('#view-register');
+
+            console.log("auth successful:", email);
+            setView('app');
+            setAppView('dashboard');
+            
+            if (isRegister) {
+                alertMessage(`registration complete! welcome to hom-o. your dashboard is ready for ${email}.`, 'success');
+            } else {
+                alertMessage(`welcome back! signed in as ${email}.`, 'sign in successful');
+            }
+        }
+
+        /* --- init --- */
+
+        window.onload = function() {
+            /* update user info */
+            updateUserInfo(userEmail);
+            
+            /* apply theme */
+            applyTheme(currentTheme);
+            
+            /* default view */
+            setView('home');
+        };
+    </script>
+</body>
+</html>
